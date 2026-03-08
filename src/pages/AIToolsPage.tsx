@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { Brain, BookOpen, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
