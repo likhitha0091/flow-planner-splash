@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      notes: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          subject_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -40,6 +78,98 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      study_sessions: {
+        Row: {
+          completed_at: string
+          duration_minutes: number
+          id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          duration_minutes: number
+          id?: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          duration_minutes?: number
+          id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subjects: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          deadline: string | null
+          description: string | null
+          id: string
+          priority: string
+          subject_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          priority?: string
+          subject_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          priority?: string
+          subject_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
