@@ -35,6 +35,8 @@ const features = [
   },
 ];
 
+const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+
 const cardVariants = {
   enter: (dir: number) => ({
     rotateY: dir > 0 ? 90 : -90,
@@ -45,13 +47,13 @@ const cardVariants = {
     rotateY: 0,
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    transition: { duration: 0.5, ease: EASE },
   },
   exit: (dir: number) => ({
     rotateY: dir > 0 ? -90 : 90,
     opacity: 0,
     scale: 0.9,
-    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.4, ease: EASE },
   }),
 };
 
