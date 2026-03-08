@@ -297,6 +297,29 @@ const AIToolsPage = () => {
             <Brain className="w-4 h-4 text-primary" />
             <h2 className="font-display font-bold text-foreground">AI Response</h2>
             {loading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground ml-auto" />}
+            {result && !loading && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto rounded-lg gap-1.5 text-xs"
+                onClick={async () => {
+                  const title = active === "study-plan"
+                    ? `Study Plan: ${subject}`
+                    : active === "summarize"
+                    ? `Summary: ${pdfFile?.name || "Notes"}`
+                    : "Productivity Advice";
+                  try {
+                    await addNote.mutateAsync({ title, content: result });
+                    toast({ title: "Saved!", description: "AI response saved to your Notes." });
+                  } catch {
+                    toast({ title: "Error", description: "Failed to save note.", variant: "destructive" });
+                  }
+                }}
+              >
+                <Save className="w-3.5 h-3.5" />
+                Save as Note
+              </Button>
+            )}
           </div>
           <div className="prose prose-sm max-w-none text-foreground dark:prose-invert">
             {result ? (
