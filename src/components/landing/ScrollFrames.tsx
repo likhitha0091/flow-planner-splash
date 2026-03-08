@@ -52,7 +52,7 @@ const FrameLayer = ({
   activeIndex: ReturnType<typeof useTransform>;
   frame: (typeof frames)[number];
 }) => {
-  const opacity = useTransform(activeIndex, (v) => {
+  const opacity = useTransform(activeIndex, (v: number) => {
     const dist = Math.abs(v - index);
     return dist < 0.5 ? 1 : Math.max(0, 1 - (dist - 0.5) * 2);
   });
