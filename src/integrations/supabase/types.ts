@@ -84,6 +84,8 @@ export type Database = {
           completed_at: string
           duration_minutes: number
           id: string
+          status: string
+          target_duration_minutes: number
           type: string
           user_id: string
         }
@@ -91,6 +93,8 @@ export type Database = {
           completed_at?: string
           duration_minutes: number
           id?: string
+          status?: string
+          target_duration_minutes?: number
           type?: string
           user_id: string
         }
@@ -98,6 +102,8 @@ export type Database = {
           completed_at?: string
           duration_minutes?: number
           id?: string
+          status?: string
+          target_duration_minutes?: number
           type?: string
           user_id?: string
         }

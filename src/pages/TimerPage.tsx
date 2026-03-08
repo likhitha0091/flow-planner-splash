@@ -1,21 +1,23 @@
 import { motion } from "framer-motion";
-import { Play, Pause, RotateCcw, Coffee, BookOpen, Clock, Loader2 } from "lucide-react";
+import { Play, Pause, RotateCcw, Square, Coffee, BookOpen, Clock, Loader2, CheckCircle2, CircleDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStudySessions } from "@/hooks/useStudySessions";
 import { useTimer } from "@/contexts/TimerContext";
 
 const TimerPage = () => {
   const { sessions, isLoading } = useStudySessions();
-  const { mode, setMode, timeLeft, running, setRunning, reset, progress, total } = useTimer();
+  const { mode, setMode, timeLeft, running, setRunning, reset, stop, progress, total } = useTimer();
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
+  const hasStarted = timeLeft < total;
 
   const circumference = 2 * Math.PI * 120;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const studySessions = sessions.filter((s) => s.type === "study");
   const totalMinutes = studySessions.reduce((a, s) => a + s.duration_minutes, 0);
+  const completedCount = studySessions.filter((s) => s.status === "completed").length;
 
   return (
     <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6">
@@ -25,6 +27,7 @@ const TimerPage = () => {
       </motion.div>
 
       <div className="grid lg:grid-cols-3 gap-6">
+        {/* Timer */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-8 flex flex-col items-center">
           <div className="flex gap-2 mb-8">
             {(["study", "break"] as const).map((m) => (
@@ -46,32 +49,61 @@ const TimerPage = () => {
           </div>
           <div className="flex gap-3">
             <Button variant="hero" size="lg" className="rounded-xl gap-2" onClick={() => setRunning(!running)}>
-              {running ? <><Pause className="w-4 h-4" /> Pause</> : <><Play className="w-4 h-4" /> {timeLeft < total ? "Resume" : "Start"}</>}
+              {running ? <><Pause className="w-4 h-4" /> Pause</> : <><Play className="w-4 h-4" /> {hasStarted ? "Resume" : "Start"}</>}
             </Button>
-            <Button variant="outline" size="lg" className="rounded-xl gap-2" onClick={reset}><RotateCcw className="w-4 h-4" /> Reset</Button>
+            {hasStarted && (
+              <Button variant="outline" size="lg" className="rounded-xl gap-2 border-destructive/30 text-destructive hover:bg-destructive/10" onClick={stop}>
+                <Square className="w-4 h-4" /> Stop & Save
+              </Button>
+            )}
+            <Button variant="outline" size="lg" className="rounded-xl gap-2" onClick={reset}>
+              <RotateCcw className="w-4 h-4" /> Reset
+            </Button>
           </div>
         </motion.div>
 
+        {/* Session History */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-6">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-4 h-4 text-primary" />
             <h2 className="font-display font-bold text-foreground">Session History</h2>
           </div>
-          <p className="text-xs text-muted-foreground mb-4">{studySessions.length} sessions · {totalMinutes} min total</p>
+          <div className="flex gap-4 text-xs text-muted-foreground mb-4">
+            <span>{studySessions.length} sessions</span>
+            <span>{completedCount} completed</span>
+            <span>{totalMinutes} min total</span>
+          </div>
           {isLoading ? (
             <div className="flex justify-center py-8"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
           ) : sessions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">No sessions yet. Start your first timer!</p>
           ) : (
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {sessions.slice(0, 20).map((s) => (
+            <div className="space-y-2 max-h-[420px] overflow-y-auto">
+              {sessions.slice(0, 30).map((s) => (
                 <div key={s.id} className="flex items-center gap-3 p-3 rounded-xl bg-secondary/20">
                   {s.type === "study" ? <BookOpen className="w-4 h-4 text-primary shrink-0" /> : <Coffee className="w-4 h-4 text-accent shrink-0" />}
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">{s.type === "study" ? "Study Session" : "Break"}</p>
-                    <p className="text-[10px] text-muted-foreground">{s.duration_minutes} min</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-medium text-foreground">{s.type === "study" ? "Study" : "Break"}</p>
+                      {s.status === "completed" ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-accent shrink-0" />
+                      ) : (
+                        <CircleDot className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground">
+                      {s.duration_minutes}/{s.target_duration_minutes || s.duration_minutes} min
+                      {s.status === "partial" && " · stopped early"}
+                    </p>
                   </div>
-                  <span className="text-[10px] text-muted-foreground">{new Date(s.completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-muted-foreground block">
+                      {new Date(s.completed_at).toLocaleDateString([], { month: "short", day: "numeric" })}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(s.completed_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

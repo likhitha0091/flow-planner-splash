@@ -7,6 +7,8 @@ export interface StudySession {
   user_id: string;
   type: string;
   duration_minutes: number;
+  target_duration_minutes: number;
+  status: string;
   completed_at: string;
 }
 
@@ -28,8 +30,18 @@ export const useStudySessions = () => {
   });
 
   const addSession = useMutation({
-    mutationFn: async (session: { type: string; duration_minutes: number }) => {
-      const { error } = await supabase.from("study_sessions").insert({ ...session, user_id: user!.id });
+    mutationFn: async (session: {
+      type: string;
+      duration_minutes: number;
+      target_duration_minutes?: number;
+      status?: string;
+    }) => {
+      const { error } = await supabase.from("study_sessions").insert({
+        ...session,
+        user_id: user!.id,
+        target_duration_minutes: session.target_duration_minutes ?? session.duration_minutes,
+        status: session.status ?? "completed",
+      });
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["study_sessions"] }),
