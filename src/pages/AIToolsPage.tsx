@@ -9,12 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
 import { useAITools } from "@/contexts/AIToolsContext";
 
-type Tab = "study-plan" | "summarize" | "productivity";
+type Tab = "study-plan" | "summarize";
 
 const tabs: { key: Tab; label: string; icon: React.ElementType; desc: string }[] = [
   { key: "study-plan", label: "Study Plan", icon: Calendar, desc: "Generate a smart daily study schedule" },
   { key: "summarize", label: "Summarizer", icon: BookOpen, desc: "Condense notes into key points" },
-  { key: "productivity", label: "Advisor", icon: TrendingUp, desc: "Get personalized productivity tips" },
 ];
 
 const AIToolsPage = () => {
