@@ -14,7 +14,38 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { type, ...params } = await req.json();
+    const contentType = req.headers.get("content-type") || "";
+    let type = "";
+    let params: Record<string, any> = {};
+    let pdfBase64: string | null = null;
+    let pdfMimeType: string | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      type = formData.get("type") as string;
+      const file = formData.get("file") as File | null;
+      
+      // Parse other params from JSON string
+      const paramsStr = formData.get("params") as string;
+      if (paramsStr) params = JSON.parse(paramsStr);
+
+      if (file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        // base64 encode
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        pdfBase64 = btoa(binary);
+        pdfMimeType = file.type || "application/pdf";
+      }
+    } else {
+      const json = await req.json();
+      type = json.type;
+      const { type: _, ...rest } = json;
+      params = rest;
+    }
 
     let systemPrompt = "";
     let userPrompt = "";
