@@ -14,7 +14,38 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { type, ...params } = await req.json();
+    const contentType = req.headers.get("content-type") || "";
+    let type = "";
+    let params: Record<string, any> = {};
+    let pdfBase64: string | null = null;
+    let pdfMimeType: string | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      type = formData.get("type") as string;
+      const file = formData.get("file") as File | null;
+      
+      // Parse other params from JSON string
+      const paramsStr = formData.get("params") as string;
+      if (paramsStr) params = JSON.parse(paramsStr);
+
+      if (file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        // base64 encode
+        let binary = "";
+        for (let i = 0; i < bytes.length; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        pdfBase64 = btoa(binary);
+        pdfMimeType = file.type || "application/pdf";
+      }
+    } else {
+      const json = await req.json();
+      type = json.type;
+      const { type: _, ...rest } = json;
+      params = rest;
+    }
 
     let systemPrompt = "";
     let userPrompt = "";
@@ -28,7 +59,11 @@ serve(async (req) => {
       const { notes } = params;
       systemPrompt =
         "You are an expert at summarizing study material. Extract the most important concepts and present them clearly using markdown. Use headers, bullet points, and bold for key terms.";
-      userPrompt = `Summarize the following study notes into key points and important concepts:\n\n${notes}`;
+      if (pdfBase64) {
+        userPrompt = "Summarize the contents of this PDF document into key points and important concepts. Extract all major topics, definitions, and critical information.";
+      } else {
+        userPrompt = `Summarize the following study notes into key points and important concepts:\n\n${notes}`;
+      }
     } else if (type === "productivity") {
       const authHeader = req.headers.get("Authorization");
       const supabase = createClient(
@@ -62,6 +97,14 @@ serve(async (req) => {
       throw new Error("Invalid type");
     }
 
+    // Build messages - use multimodal content if PDF provided
+    const userContent: any = pdfBase64
+      ? [
+          { type: "text", text: userPrompt },
+          { type: "image_url", image_url: { url: `data:${pdfMimeType};base64,${pdfBase64}` } },
+        ]
+      : userPrompt;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -72,7 +115,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: userContent },
         ],
         stream: true,
       }),

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
+import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock, FileUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,18 +18,19 @@ const tabs: { key: Tab; label: string; icon: React.ElementType; desc: string }[]
 ];
 
 async function streamAI(
-  body: Record<string, unknown>,
+  body: Record<string, unknown> | FormData,
   onDelta: (t: string) => void,
   onDone: () => void,
   signal?: AbortSignal,
 ) {
+  const isFormData = body instanceof FormData;
   const resp = await fetch(AI_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify(body),
+    body: isFormData ? body : JSON.stringify(body),
     signal,
   });
 
@@ -84,6 +85,8 @@ const AIToolsPage = () => {
 
   // Summarizer state
   const [notes, setNotes] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
     setResult("");
@@ -100,12 +103,20 @@ const AIToolsPage = () => {
       }
       body = { ...body, subject, examDate, hoursPerDay: Number(hoursPerDay) };
     } else if (active === "summarize") {
-      if (!notes.trim()) {
-        toast({ title: "Missing notes", description: "Please paste your study notes.", variant: "destructive" });
+      if (!notes.trim() && !pdfFile) {
+        toast({ title: "Missing input", description: "Please paste notes or upload a PDF.", variant: "destructive" });
         setLoading(false);
         return;
       }
-      body = { ...body, notes };
+      if (pdfFile) {
+        const formData = new FormData();
+        formData.append("type", "summarize");
+        formData.append("file", pdfFile);
+        formData.append("params", JSON.stringify({}));
+        body = formData as any;
+      } else {
+        body = { ...body, notes };
+      }
     }
 
     try {
@@ -150,14 +161,61 @@ const AIToolsPage = () => {
     }
     if (active === "summarize") {
       return (
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Paste Your Notes</Label>
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Paste your study material here..."
-            className="bg-secondary/30 border-border/50 min-h-[160px] resize-none"
-          />
+        <div className="space-y-4">
+          {/* PDF upload */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Upload PDF</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  if (file.size > 20 * 1024 * 1024) {
+                    toast({ title: "File too large", description: "Max 20MB allowed.", variant: "destructive" });
+                    return;
+                  }
+                  setPdfFile(file);
+                  setNotes("");
+                }
+              }}
+            />
+            {pdfFile ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                <FileUp className="w-5 h-5 text-primary shrink-0" />
+                <span className="text-sm font-medium text-foreground truncate flex-1">{pdfFile.name}</span>
+                <button onClick={() => { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border/50 bg-secondary/20 text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all"
+              >
+                <FileUp className="w-5 h-5" />
+                <span className="text-sm">Click to upload PDF (max 20MB)</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border/50" />
+            <span className="text-xs text-muted-foreground">or paste text</span>
+            <div className="h-px flex-1 bg-border/50" />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Paste Your Notes</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => { setNotes(e.target.value); if (e.target.value) { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; } }}
+              placeholder="Paste your study material here..."
+              className="bg-secondary/30 border-border/50 min-h-[120px] resize-none"
+            />
+          </div>
         </div>
       );
     }
