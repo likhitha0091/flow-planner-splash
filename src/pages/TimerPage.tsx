@@ -1,44 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Play, Pause, RotateCcw, Coffee, BookOpen, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStudySessions } from "@/hooks/useStudySessions";
-
-const STUDY_DURATION = 25 * 60;
-const BREAK_DURATION = 5 * 60;
+import { useTimer } from "@/contexts/TimerContext";
 
 const TimerPage = () => {
-  const { sessions, isLoading, addSession } = useStudySessions();
-  const [mode, setMode] = useState<"study" | "break">("study");
-  const [timeLeft, setTimeLeft] = useState(STUDY_DURATION);
-  const [running, setRunning] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const { sessions, isLoading } = useStudySessions();
+  const { mode, setMode, timeLeft, running, setRunning, reset, progress, total } = useTimer();
 
-  const total = mode === "study" ? STUDY_DURATION : BREAK_DURATION;
-  const progress = ((total - timeLeft) / total) * 100;
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-
-  const completeSession = useCallback(() => {
-    addSession.mutate({ type: mode, duration_minutes: mode === "study" ? 25 : 5 });
-    const nextMode = mode === "study" ? "break" : "study";
-    setMode(nextMode);
-    setTimeLeft(nextMode === "study" ? STUDY_DURATION : BREAK_DURATION);
-    setRunning(false);
-  }, [mode, addSession]);
-
-  useEffect(() => {
-    if (!running) { clearInterval(intervalRef.current); return; }
-    intervalRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) { completeSession(); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(intervalRef.current);
-  }, [running, completeSession]);
-
-  const reset = () => { setRunning(false); setTimeLeft(mode === "study" ? STUDY_DURATION : BREAK_DURATION); };
 
   const circumference = 2 * Math.PI * 120;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -57,7 +28,7 @@ const TimerPage = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="lg:col-span-2 bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-8 flex flex-col items-center">
           <div className="flex gap-2 mb-8">
             {(["study", "break"] as const).map((m) => (
-              <button key={m} onClick={() => { if (!running) { setMode(m); setTimeLeft(m === "study" ? STUDY_DURATION : BREAK_DURATION); } }} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${mode === m ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"}`}>
+              <button key={m} onClick={() => setMode(m)} className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${mode === m ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"}`}>
                 {m === "study" ? <BookOpen className="w-3.5 h-3.5" /> : <Coffee className="w-3.5 h-3.5" />}
                 {m === "study" ? "Study" : "Break"}
               </button>
