@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock } from "lucide-react";
+import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock, FileUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
