@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home, BookOpen, ClipboardList, Calendar, FileText,
-  Timer, BarChart3, Settings, LogOut, ChevronLeft, ChevronRight,
+  Timer, BarChart3, Brain, Settings, LogOut, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
