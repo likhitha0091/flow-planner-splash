@@ -1,6 +1,7 @@
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
-import FeatureCards3D from "@/components/landing/FeatureCards3D";
+import Features from "@/components/landing/Features";
+import ProductPreview from "@/components/landing/ProductPreview";
 import CTASection from "@/components/landing/CTASection";
 import Footer from "@/components/landing/Footer";
 
@@ -8,7 +9,8 @@ const Index = () => (
   <div className="min-h-screen bg-background">
     <Navbar />
     <HeroSection />
-    <FeatureCards3D />
+    <Features />
+    <ProductPreview />
     <CTASection />
     <Footer />
   </div>
