@@ -60,8 +60,8 @@ const Navbar = () => {
                   {link}
                 </div>
               ))}
-              <Button variant="nav" size="sm" className="rounded-full px-5 w-full">
-                Get Started
+              <Button variant="nav" size="sm" className="rounded-full px-5 w-full" asChild>
+                <Link to="/auth">Get Started</Link>
               </Button>
             </div>
           </motion.div>
