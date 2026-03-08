@@ -7,7 +7,7 @@ import { BookOpen, Menu, X } from "lucide-react";
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const navLinks = ["Features"];
+  const navLinks: string[] = [];
 
   return (
     <motion.nav
