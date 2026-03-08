@@ -83,7 +83,7 @@ const HeroSection = () => (
       </div>
     </FloatingCard>
 
-    <FloatingCard className="top-[42%] right-[3%]" delay={0.25} dy={7} dx={-4}>
+    <FloatingCard className="top-[34%] right-[3%]" delay={0.25} dy={7} dx={-4}>
       <div className="flex items-center gap-2 text-xs">
         <BookOpen className="w-3.5 h-3.5 text-primary" />
         <span className="text-foreground font-medium">3 tasks due today</span>
