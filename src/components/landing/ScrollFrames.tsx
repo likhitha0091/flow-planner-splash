@@ -75,8 +75,8 @@ const FrameDot = ({
   activeIndex: ReturnType<typeof useTransform>;
   label: string;
 }) => {
-  const scale = useTransform(activeIndex, (v) => (Math.abs(v - index) < 0.5 ? 1 : 0.7));
-  const dotOpacity = useTransform(activeIndex, (v) => (Math.abs(v - index) < 0.5 ? 1 : 0.3));
+  const scale = useTransform(activeIndex, (v: number) => (Math.abs(v - index) < 0.5 ? 1 : 0.7));
+  const dotOpacity = useTransform(activeIndex, (v: number) => (Math.abs(v - index) < 0.5 ? 1 : 0.3));
 
   return (
     <motion.div style={{ scale, opacity: dotOpacity }} className="flex flex-col items-center gap-1">
