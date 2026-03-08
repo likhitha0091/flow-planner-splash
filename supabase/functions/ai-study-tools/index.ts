@@ -52,9 +52,11 @@ serve(async (req) => {
 
     if (type === "study-plan") {
       const { subject, examDate, hoursPerDay } = params;
+      const today = new Date().toISOString().split("T")[0];
+      const daysLeft = Math.max(1, Math.ceil((new Date(examDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24)));
       systemPrompt =
-        "You are an expert study planner. Create a clear, actionable daily study plan. Use markdown formatting with headers, bullet points, and bold text. Be specific about what to study each day.";
-      userPrompt = `Create a daily study plan for the subject "${subject}". The exam is on ${examDate} and the student can study ${hoursPerDay} hours per day. Include specific topics to cover each day, revision days, and practice test days. Format it clearly with day-by-day breakdown.`;
+        "You are an expert study planner. Create a clear, actionable study plan that STRICTLY fits within the available days. Use markdown formatting with headers, bullet points, and bold text. Be specific about what to study each day. NEVER exceed the number of days available.";
+      userPrompt = `Create a study plan for "${subject}". Today is ${today} and the exam is on ${examDate} — that is exactly ${daysLeft} day(s) left. The student can study ${hoursPerDay} hours per day. Your plan MUST cover exactly ${daysLeft} day(s), no more. If there's only 1 day, give an intensive single-day plan. Be realistic about what can be covered in the time available.`;
     } else if (type === "summarize") {
       const { notes } = params;
       systemPrompt =
