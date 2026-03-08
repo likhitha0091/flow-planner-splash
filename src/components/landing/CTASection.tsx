@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
@@ -23,9 +24,11 @@ const CTASection = () => (
             Join students who are studying smarter, staying consistent, and achieving
             their academic goals with StudyFlow AI.
           </p>
-          <Button variant="hero" size="lg" className="rounded-full px-10 text-base gap-2 group">
-            Get Started — It's Free
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <Button variant="hero" size="lg" className="rounded-full px-10 text-base gap-2 group" asChild>
+            <Link to="/auth">
+              Get Started — It's Free
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </Button>
         </div>
       </div>

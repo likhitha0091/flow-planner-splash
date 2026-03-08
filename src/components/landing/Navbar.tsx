@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Menu, X } from "lucide-react";
 
@@ -32,8 +33,8 @@ const Navbar = () => {
               {link}
             </span>
           ))}
-          <Button variant="nav" size="sm" className="rounded-full px-5">
-            Get Started
+          <Button variant="nav" size="sm" className="rounded-full px-5" asChild>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
 
@@ -59,8 +60,8 @@ const Navbar = () => {
                   {link}
                 </div>
               ))}
-              <Button variant="nav" size="sm" className="rounded-full px-5 w-full">
-                Get Started
+              <Button variant="nav" size="sm" className="rounded-full px-5 w-full" asChild>
+                <Link to="/auth">Get Started</Link>
               </Button>
             </div>
           </motion.div>
