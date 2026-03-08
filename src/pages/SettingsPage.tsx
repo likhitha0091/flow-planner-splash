@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Settings, User, Lock, Bell, Palette, Save } from "lucide-react";
+import { User, Bell, Palette, Save, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,17 @@ const SettingsPage = () => {
   const [name, setName] = useState(user?.user_metadata?.full_name || "");
   const [email] = useState(user?.email || "");
   const [notifications, setNotifications] = useState({ email: true, deadlines: true, weekly: false });
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
 
   const handleSave = () => {
     toast({ title: "Settings saved", description: "Your preferences have been updated." });
