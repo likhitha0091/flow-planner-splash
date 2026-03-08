@@ -13,6 +13,7 @@ import CalendarPage from "./pages/CalendarPage";
 import NotesPage from "./pages/NotesPage";
 import TimerPage from "./pages/TimerPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import AIToolsPage from "./pages/AIToolsPage";
 import SettingsPage from "./pages/SettingsPage";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import NotFound from "./pages/NotFound";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/home/notes" element={<DashboardLayout><NotesPage /></DashboardLayout>} />
             <Route path="/home/timer" element={<DashboardLayout><TimerPage /></DashboardLayout>} />
             <Route path="/home/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
+            <Route path="/home/ai-tools" element={<DashboardLayout><AIToolsPage /></DashboardLayout>} />
             <Route path="/home/settings" element={<DashboardLayout><SettingsPage /></DashboardLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
