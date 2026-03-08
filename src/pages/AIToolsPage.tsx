@@ -161,14 +161,61 @@ const AIToolsPage = () => {
     }
     if (active === "summarize") {
       return (
-        <div className="space-y-1.5">
-          <Label className="text-xs text-muted-foreground">Paste Your Notes</Label>
-          <Textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Paste your study material here..."
-            className="bg-secondary/30 border-border/50 min-h-[160px] resize-none"
-          />
+        <div className="space-y-4">
+          {/* PDF upload */}
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Upload PDF</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  if (file.size > 20 * 1024 * 1024) {
+                    toast({ title: "File too large", description: "Max 20MB allowed.", variant: "destructive" });
+                    return;
+                  }
+                  setPdfFile(file);
+                  setNotes("");
+                }
+              }}
+            />
+            {pdfFile ? (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                <FileUp className="w-5 h-5 text-primary shrink-0" />
+                <span className="text-sm font-medium text-foreground truncate flex-1">{pdfFile.name}</span>
+                <button onClick={() => { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} className="text-muted-foreground hover:text-destructive transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full flex items-center justify-center gap-2 p-4 rounded-xl border-2 border-dashed border-border/50 bg-secondary/20 text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all"
+              >
+                <FileUp className="w-5 h-5" />
+                <span className="text-sm">Click to upload PDF (max 20MB)</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-border/50" />
+            <span className="text-xs text-muted-foreground">or paste text</span>
+            <div className="h-px flex-1 bg-border/50" />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Paste Your Notes</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => { setNotes(e.target.value); if (e.target.value) { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; } }}
+              placeholder="Paste your study material here..."
+              className="bg-secondary/30 border-border/50 min-h-[120px] resize-none"
+            />
+          </div>
         </div>
       );
     }
