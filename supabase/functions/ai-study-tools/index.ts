@@ -59,7 +59,11 @@ serve(async (req) => {
       const { notes } = params;
       systemPrompt =
         "You are an expert at summarizing study material. Extract the most important concepts and present them clearly using markdown. Use headers, bullet points, and bold for key terms.";
-      userPrompt = `Summarize the following study notes into key points and important concepts:\n\n${notes}`;
+      if (pdfBase64) {
+        userPrompt = "Summarize the contents of this PDF document into key points and important concepts. Extract all major topics, definitions, and critical information.";
+      } else {
+        userPrompt = `Summarize the following study notes into key points and important concepts:\n\n${notes}`;
+      }
     } else if (type === "productivity") {
       const authHeader = req.headers.get("Authorization");
       const supabase = createClient(
