@@ -1,71 +1,55 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Plus, Pencil, Trash2, X, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, X, FileText, Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  subject: string;
-  updatedAt: string;
-}
-
-const initialNotes: Note[] = [
-  { id: "1", title: "Calculus Formulas", content: "Key integration formulas and derivatives. Remember the chain rule and product rule...", subject: "Mathematics", updatedAt: "2026-03-08" },
-  { id: "2", title: "Wave Mechanics Notes", content: "Properties of waves, interference patterns, Doppler effect summary...", subject: "Physics", updatedAt: "2026-03-07" },
-  { id: "3", title: "Data Structures Overview", content: "Trees, graphs, hash tables. Time complexity comparisons for common operations...", subject: "Computer Science", updatedAt: "2026-03-06" },
-  { id: "4", title: "Cell Biology Summary", content: "Mitosis vs meiosis, cell organelles and their functions, membrane transport...", subject: "Biology", updatedAt: "2026-03-05" },
-  { id: "5", title: "Algorithm Patterns", content: "Two pointers, sliding window, BFS/DFS, dynamic programming patterns...", subject: "Computer Science", updatedAt: "2026-03-04" },
-];
-
-const subjectColors: Record<string, string> = {
-  Mathematics: "bg-primary",
-  Physics: "bg-accent",
-  "Computer Science": "bg-purple-500",
-  Biology: "bg-emerald-500",
-};
+import { useNotes } from "@/hooks/useNotes";
+import { useSubjects } from "@/hooks/useSubjects";
 
 const NotesPage = () => {
-  const [notes, setNotes] = useState<Note[]>(initialNotes);
+  const { notes, isLoading, addNote, updateNote, deleteNote } = useNotes();
+  const { subjects } = useSubjects();
   const [search, setSearch] = useState("");
-  const [filterSubject, setFilterSubject] = useState("all");
+  const [filterSubject, setFilterSubject] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [form, setForm] = useState({ title: "", content: "", subject: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ title: "", content: "", subject_id: "" });
   const { toast } = useToast();
 
-  const subjects = ["all", ...new Set(notes.map((n) => n.subject))];
-  const filtered = notes.filter((n) =>
-    (filterSubject === "all" || n.subject === filterSubject) &&
-    (n.title.toLowerCase().includes(search.toLowerCase()) || n.content.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = notes.filter((n) => {
+    const matchSearch = !search || n.title.toLowerCase().includes(search.toLowerCase()) || n.content.toLowerCase().includes(search.toLowerCase());
+    const matchSubject = !filterSubject || n.subject_id === filterSubject;
+    return matchSearch && matchSubject;
+  });
 
-  const openAdd = () => { setEditingNote(null); setForm({ title: "", content: "", subject: "" }); setModalOpen(true); };
-  const openEdit = (n: Note) => { setEditingNote(n); setForm({ title: n.title, content: n.content, subject: n.subject }); setModalOpen(true); };
+  const openAdd = () => { setEditingId(null); setForm({ title: "", content: "", subject_id: "" }); setModalOpen(true); };
+  const openEdit = (n: any) => { setEditingId(n.id); setForm({ title: n.title, content: n.content || "", subject_id: n.subject_id || "" }); setModalOpen(true); };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title.trim()) return;
-    const today = new Date().toISOString().split("T")[0];
-    if (editingNote) {
-      setNotes((prev) => prev.map((n) => n.id === editingNote.id ? { ...n, ...form, updatedAt: today } : n));
+    if (editingId) {
+      await updateNote.mutateAsync({ id: editingId, title: form.title, content: form.content, subject_id: form.subject_id || null });
       toast({ title: "Note updated" });
     } else {
-      setNotes((prev) => [{ id: Date.now().toString(), ...form, updatedAt: today }, ...prev]);
+      await addNote.mutateAsync({ title: form.title, content: form.content, subject_id: form.subject_id || null });
       toast({ title: "Note created" });
     }
     setModalOpen(false);
   };
 
-  const handleDelete = (id: string) => { setNotes((prev) => prev.filter((n) => n.id !== id)); toast({ title: "Note deleted" }); };
+  const handleDelete = async (id: string) => {
+    await deleteNote.mutateAsync(id);
+    toast({ title: "Note deleted" });
+  };
+
+  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
 
   return (
     <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground">Notes</h1>
           <p className="text-sm text-muted-foreground mt-1">{notes.length} notes</p>
@@ -73,74 +57,75 @@ const NotesPage = () => {
         <Button variant="hero" className="rounded-xl gap-2" onClick={openAdd}><Plus className="w-4 h-4" /> New Note</Button>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search notes..." className="pl-10 bg-secondary/30 border-border/50" />
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1 flex-wrap">
+          <button onClick={() => setFilterSubject(null)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${!filterSubject ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"}`}>All</button>
           {subjects.map((s) => (
-            <button key={s} onClick={() => setFilterSubject(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterSubject === s ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"}`}>
-              {s === "all" ? "All" : s}
-            </button>
+            <button key={s.id} onClick={() => setFilterSubject(s.id)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filterSubject === s.id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"}`}>{s.name}</button>
           ))}
         </div>
-      </motion.div>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((note, i) => (
-            <motion.div
-              key={note.id}
-              layout
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ delay: i * 0.04 }}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card hover:shadow-card-hover transition-shadow p-5 group"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-2 h-8 rounded-full ${subjectColors[note.subject] || "bg-muted"}`} />
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => openEdit(note)} className="p-1.5 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"><Pencil className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => handleDelete(note.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
-                </div>
-              </div>
-              <h3 className="font-display font-bold text-foreground text-sm mb-1">{note.title}</h3>
-              <p className="text-xs text-muted-foreground line-clamp-3 mb-3">{note.content}</p>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{note.subject}</span>
-                <span className="text-[10px] text-muted-foreground">{note.updatedAt}</span>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
       </div>
 
-      {/* Modal */}
+      {filtered.length === 0 ? (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16 text-muted-foreground">
+          <FileText className="w-12 h-12 mx-auto mb-4 opacity-40" />
+          <p className="text-lg font-medium">No notes found</p>
+          <p className="text-sm mt-1">{notes.length === 0 ? "Create your first note" : "Try a different search"}</p>
+        </motion.div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AnimatePresence>
+            {filtered.map((note, i) => (
+              <motion.div key={note.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.04 }} whileHover={{ y: -4, transition: { duration: 0.2 } }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card hover:shadow-card-hover transition-shadow p-5 group">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="font-display font-bold text-foreground text-sm">{note.title}</h3>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openEdit(note)} className="p-1 rounded-lg hover:bg-secondary/50 text-muted-foreground hover:text-foreground"><Pencil className="w-3 h-3" /></button>
+                    <button onClick={() => handleDelete(note.id)} className="p-1 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive"><Trash2 className="w-3 h-3" /></button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground line-clamp-3 mb-3">{note.content || "No content"}</p>
+                <div className="flex items-center justify-between">
+                  {note.subject_name && <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{note.subject_name}</span>}
+                  <span className="text-[10px] text-muted-foreground">{new Date(note.updated_at).toLocaleDateString()}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
+
       <AnimatePresence>
         {modalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-card rounded-2xl border border-border/50 shadow-card p-6 w-full max-w-md">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="font-display font-bold text-foreground">{editingNote ? "Edit Note" : "New Note"}</h2>
+                <h2 className="font-display font-bold text-foreground">{editingId ? "Edit Note" : "New Note"}</h2>
                 <button onClick={() => setModalOpen(false)} className="p-1 rounded-lg hover:bg-secondary/50 text-muted-foreground"><X className="w-4 h-4" /></button>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Title</Label>
-                  <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Note title" className="bg-secondary/30 border-border/50" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Subject</Label>
-                  <Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="Subject" className="bg-secondary/30 border-border/50" />
+                  <Input value={form.title} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} placeholder="Note title" className="bg-secondary/30 border-border/50" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Content</Label>
-                  <Textarea value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="Write your note..." className="bg-secondary/30 border-border/50 min-h-[150px]" />
+                  <Textarea value={form.content} onChange={(e) => setForm((p) => ({ ...p, content: e.target.value }))} placeholder="Write your note..." className="bg-secondary/30 border-border/50 min-h-[120px]" />
                 </div>
-                <Button variant="hero" className="w-full rounded-xl" onClick={handleSave}>{editingNote ? "Update" : "Create"} Note</Button>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Subject</Label>
+                  <select value={form.subject_id} onChange={(e) => setForm((p) => ({ ...p, subject_id: e.target.value }))} className="w-full rounded-lg border border-border/50 bg-secondary/30 px-3 py-2 text-sm text-foreground">
+                    <option value="">None</option>
+                    {subjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                  </select>
+                </div>
+                <Button variant="hero" className="w-full rounded-xl" onClick={handleSave} disabled={addNote.isPending || updateNote.isPending}>
+                  {(addNote.isPending || updateNote.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : editingId ? "Update" : "Create"} Note
+                </Button>
               </div>
             </motion.div>
           </motion.div>
