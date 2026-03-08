@@ -44,7 +44,7 @@ const FeatureBlock = ({
   <motion.div
     initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-50px" }}
+    viewport={{ once: false, margin: "-50px" }}
     transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
     whileHover={{ y: -6, transition: { duration: 0.25 } }}
     className="group rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-shadow duration-300 border border-border/50 bg-card/70 backdrop-blur-sm"
