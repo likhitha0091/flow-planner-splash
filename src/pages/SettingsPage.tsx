@@ -89,7 +89,10 @@ const SettingsPage = () => {
             <p className="text-sm font-medium text-foreground">Dark Mode</p>
             <p className="text-[10px] text-muted-foreground">Toggle dark/light theme</p>
           </div>
-          <Switch />
+          <div className="flex items-center gap-2">
+            {darkMode ? <Moon className="w-4 h-4 text-muted-foreground" /> : <Sun className="w-4 h-4 text-muted-foreground" />}
+            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+          </div>
         </div>
       </motion.div>
 
