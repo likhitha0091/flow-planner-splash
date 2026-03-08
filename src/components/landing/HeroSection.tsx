@@ -172,14 +172,6 @@ const HeroSection = () => (
         </Button>
       </motion.div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-        className="text-xs text-muted-foreground mt-4"
-      >
-        Free to use · No credit card required
-      </motion.p>
     </div>
   </section>
 );
