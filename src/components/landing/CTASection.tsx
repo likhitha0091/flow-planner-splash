@@ -8,7 +8,7 @@ const CTASection = () => (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: false, margin: "-50px" }}
       className="relative max-w-3xl mx-auto text-center"
     >
       <div className="rounded-3xl bg-card/70 backdrop-blur-md border border-border/50 shadow-card p-12 sm:p-16 overflow-hidden">
