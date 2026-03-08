@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
+import { Brain, BookOpen, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,12 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
 import { useAITools } from "@/contexts/AIToolsContext";
 
-type Tab = "study-plan" | "summarize" | "productivity";
+type Tab = "study-plan" | "summarize";
 
 const tabs: { key: Tab; label: string; icon: React.ElementType; desc: string }[] = [
   { key: "study-plan", label: "Study Plan", icon: Calendar, desc: "Generate a smart daily study schedule" },
   { key: "summarize", label: "Summarizer", icon: BookOpen, desc: "Condense notes into key points" },
-  { key: "productivity", label: "Advisor", icon: TrendingUp, desc: "Get personalized productivity tips" },
 ];
 
 const AIToolsPage = () => {
@@ -105,13 +104,6 @@ const AIToolsPage = () => {
             />
           </div>
         </div>
-      );
-    }
-    if (active === "productivity") {
-      return (
-        <p className="text-sm text-muted-foreground py-4">
-          Click generate to analyze your tasks and study sessions and get personalized improvement tips.
-        </p>
       );
     }
   };

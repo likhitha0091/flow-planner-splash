@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-study-tools`;
 
-type Tab = "study-plan" | "summarize" | "productivity";
+type Tab = "study-plan" | "summarize";
 
 interface AIToolsContextType {
   active: Tab;
