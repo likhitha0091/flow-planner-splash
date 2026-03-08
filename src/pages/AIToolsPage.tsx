@@ -199,7 +199,7 @@ const AIToolsPage = () => {
           </div>
           <div className="prose prose-sm max-w-none text-foreground dark:prose-invert">
             {result ? (
-              <ReactMarkdown className="text-sm leading-relaxed">{result}</ReactMarkdown>
+              <div className="text-sm leading-relaxed"><ReactMarkdown>{result}</ReactMarkdown></div>
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
