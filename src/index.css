@@ -6,23 +6,23 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    --background: 225 20% 97%;
+    --foreground: 225 25% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card-foreground: 225 25% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover-foreground: 225 25% 10%;
 
     --primary: 235 55% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 25% 15%;
+    --secondary: 225 15% 92%;
+    --secondary-foreground: 225 25% 15%;
 
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 225 15% 94%;
+    --muted-foreground: 225 10% 45%;
 
     --accent: 174 55% 42%;
     --accent-foreground: 0 0% 100%;
@@ -30,22 +30,21 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 90%;
-    --input: 220 15% 90%;
+    --border: 225 15% 90%;
+    --input: 225 15% 90%;
     --ring: 235 55% 52%;
 
     --radius: 0.75rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(235, 55%, 52%), hsl(174, 55%, 42%));
-    --gradient-hero: linear-gradient(135deg, hsl(235, 55%, 52%, 0.08), hsl(174, 55%, 42%, 0.06), hsl(270, 50%, 60%, 0.05));
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(220, 20%, 98%) 100%);
-    --gradient-glow: radial-gradient(ellipse at center, hsl(235, 55%, 52%, 0.12) 0%, transparent 70%);
+    --gradient-hero: linear-gradient(160deg, hsl(235, 55%, 52%, 0.06), hsl(174, 55%, 42%, 0.04), hsl(270, 50%, 60%, 0.03));
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(225, 20%, 98%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(270, 50%, 58%), hsl(235, 55%, 52%));
 
-    --shadow-soft: 0 2px 15px -3px hsl(220, 25%, 10%, 0.08), 0 4px 6px -4px hsl(220, 25%, 10%, 0.05);
-    --shadow-card: 0 4px 25px -5px hsl(220, 25%, 10%, 0.1), 0 8px 10px -6px hsl(220, 25%, 10%, 0.06);
-    --shadow-card-hover: 0 10px 40px -8px hsl(235, 55%, 52%, 0.2), 0 8px 16px -6px hsl(220, 25%, 10%, 0.08);
-    --shadow-glow: 0 0 20px hsl(235, 55%, 52%, 0.3), 0 0 40px hsl(235, 55%, 52%, 0.1);
+    --shadow-soft: 0 2px 15px -3px hsl(225, 25%, 10%, 0.08), 0 4px 6px -4px hsl(225, 25%, 10%, 0.05);
+    --shadow-card: 0 4px 25px -5px hsl(225, 25%, 10%, 0.1), 0 8px 10px -6px hsl(225, 25%, 10%, 0.06);
+    --shadow-card-hover: 0 10px 40px -8px hsl(235, 55%, 52%, 0.18), 0 8px 16px -6px hsl(225, 25%, 10%, 0.08);
+    --shadow-glow: 0 0 20px hsl(235, 55%, 52%, 0.25), 0 0 40px hsl(235, 55%, 52%, 0.08);
 
     --font-display: 'Plus Jakarta Sans', sans-serif;
     --font-body: 'Inter', sans-serif;
@@ -112,5 +111,11 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(hsl(235, 55%, 52%, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(235, 55%, 52%, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }
