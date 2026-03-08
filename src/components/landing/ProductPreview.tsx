@@ -25,7 +25,7 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: str
 
 const AnimatedBar = ({ width, delay = 0 }: { width: string; delay?: number }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-30px" });
+  const inView = useInView(ref, { margin: "-30px" });
 
   return (
     <div ref={ref} className="h-2 rounded-full bg-secondary overflow-hidden">
