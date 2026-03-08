@@ -103,12 +103,20 @@ const AIToolsPage = () => {
       }
       body = { ...body, subject, examDate, hoursPerDay: Number(hoursPerDay) };
     } else if (active === "summarize") {
-      if (!notes.trim()) {
-        toast({ title: "Missing notes", description: "Please paste your study notes.", variant: "destructive" });
+      if (!notes.trim() && !pdfFile) {
+        toast({ title: "Missing input", description: "Please paste notes or upload a PDF.", variant: "destructive" });
         setLoading(false);
         return;
       }
-      body = { ...body, notes };
+      if (pdfFile) {
+        const formData = new FormData();
+        formData.append("type", "summarize");
+        formData.append("file", pdfFile);
+        formData.append("params", JSON.stringify({}));
+        body = formData as any;
+      } else {
+        body = { ...body, notes };
+      }
     }
 
     try {
