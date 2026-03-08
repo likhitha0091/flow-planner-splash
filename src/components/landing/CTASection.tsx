@@ -26,7 +26,7 @@ const CTASection = () => (
           </p>
           <Button variant="hero" size="lg" className="rounded-full px-10 text-base gap-2 group" asChild>
             <Link to="/auth">
-              Get Started — It's Free
+              Get Started
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
