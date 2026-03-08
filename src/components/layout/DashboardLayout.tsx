@@ -16,6 +16,7 @@ const navItems = [
   { label: "Notes", icon: FileText, path: "/home/notes" },
   { label: "Study Timer", icon: Timer, path: "/home/timer" },
   { label: "Analytics", icon: BarChart3, path: "/home/analytics" },
+  { label: "AI Tools", icon: Brain, path: "/home/ai-tools" },
   { label: "Settings", icon: Settings, path: "/home/settings" },
 ];
 

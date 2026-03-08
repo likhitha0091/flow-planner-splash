@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/home/notes" element={<DashboardLayout><NotesPage /></DashboardLayout>} />
             <Route path="/home/timer" element={<DashboardLayout><TimerPage /></DashboardLayout>} />
             <Route path="/home/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
+            <Route path="/home/ai-tools" element={<DashboardLayout><AIToolsPage /></DashboardLayout>} />
             <Route path="/home/settings" element={<DashboardLayout><SettingsPage /></DashboardLayout>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
