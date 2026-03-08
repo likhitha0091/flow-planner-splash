@@ -85,6 +85,8 @@ const AIToolsPage = () => {
 
   // Summarizer state
   const [notes, setNotes] = useState("");
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleGenerate = async () => {
     setResult("");
