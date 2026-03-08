@@ -4,11 +4,11 @@ import { CheckCircle2, Circle, Clock, TrendingUp, BookOpen, Target } from "lucid
 
 const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { margin: "-50px" });
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView) { setDisplay(0); return; }
     const duration = 1500;
     const startTime = performance.now();
     const step = (now: number) => {
