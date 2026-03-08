@@ -85,8 +85,8 @@ export default {
           "50%": { transform: "translateY(-6px)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 15px hsl(230, 65%, 55%, 0.2)" },
-          "50%": { boxShadow: "0 0 30px hsl(230, 65%, 55%, 0.4)" },
+          "0%, 100%": { boxShadow: "0 0 15px hsl(235, 55%, 52%, 0.2)" },
+          "50%": { boxShadow: "0 0 30px hsl(235, 55%, 52%, 0.4)" },
         },
       },
       animation: {
