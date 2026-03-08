@@ -18,18 +18,19 @@ const tabs: { key: Tab; label: string; icon: React.ElementType; desc: string }[]
 ];
 
 async function streamAI(
-  body: Record<string, unknown>,
+  body: Record<string, unknown> | FormData,
   onDelta: (t: string) => void,
   onDone: () => void,
   signal?: AbortSignal,
 ) {
+  const isFormData = body instanceof FormData;
   const resp = await fetch(AI_URL, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify(body),
+    body: isFormData ? body : JSON.stringify(body),
     signal,
   });
 
