@@ -10,7 +10,7 @@ const features = [
   },
   {
     icon: Sparkles,
-    title: "AI Study Planner",
+    title: "AI Study Plan Generator",
     description: "Generate personalized study schedules based on your exams, priorities and available time — automatically.",
     gradient: "from-accent to-accent/70",
   },
@@ -22,8 +22,8 @@ const features = [
   },
   {
     icon: Timer,
-    title: "Focus Timer",
-    description: "Built-in Pomodoro timer with customizable intervals to help you stay focused and avoid distractions.",
+    title: "Pomodoro Focus Timer",
+    description: "Built-in study timer with customizable intervals to help you stay focused and avoid distractions.",
     gradient: "from-accent to-primary",
   },
   {
@@ -47,7 +47,7 @@ const FeatureBlock = ({
     viewport={{ once: true, margin: "-50px" }}
     transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
     whileHover={{ y: -6, transition: { duration: 0.25 } }}
-    className="group gradient-card rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-shadow duration-300 border border-border/50"
+    className="group rounded-2xl p-6 shadow-card hover:shadow-card-hover transition-shadow duration-300 border border-border/50 bg-card/70 backdrop-blur-sm"
   >
     <motion.div
       className={`w-11 h-11 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4`}
@@ -56,16 +56,13 @@ const FeatureBlock = ({
     >
       <feature.icon className="w-5 h-5 text-primary-foreground" />
     </motion.div>
-    <h3 className="font-display font-bold text-foreground mb-2 group-hover:text-gradient transition-all duration-300">
-      {feature.title}
-    </h3>
+    <h3 className="font-display font-bold text-foreground mb-2">{feature.title}</h3>
     <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
   </motion.div>
 );
 
 const Features = () => (
   <section className="relative py-24 px-6">
-    <div className="absolute inset-0 bg-grid-pattern opacity-50" />
     <div className="relative max-w-6xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
