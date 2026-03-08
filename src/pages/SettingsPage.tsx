@@ -55,30 +55,6 @@ const SettingsPage = () => {
         </div>
       </motion.div>
 
-      {/* Password */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Lock className="w-4 h-4 text-primary" />
-          <h2 className="font-display font-bold text-foreground">Password</h2>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Current Password</Label>
-            <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">New Password</Label>
-              <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Confirm New Password</Label>
-              <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
       {/* Notifications */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-6">
         <div className="flex items-center gap-2 mb-5">
