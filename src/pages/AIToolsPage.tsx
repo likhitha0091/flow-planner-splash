@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
+import { Brain, BookOpen, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
