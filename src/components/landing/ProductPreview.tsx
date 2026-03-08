@@ -65,7 +65,7 @@ const barData = [
 
 const ProductPreview = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { margin: "-80px" });
 
   return (
     <section className="py-24 px-6">
