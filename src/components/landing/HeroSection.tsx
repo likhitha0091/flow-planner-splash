@@ -98,26 +98,6 @@ const HeroSection = () => (
     </FloatingCard>
 
 
-    {/* Task list card */}
-    <FloatingCard className="bottom-[44%] right-[10%]" delay={0.35} dy={-8} dx={5}>
-      <div className="space-y-1">
-        {[
-          { done: true, text: "Read Ch.5" },
-          { done: false, text: "Essay draft" },
-        ].map((t, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-[10px]">
-            {t.done ? (
-              <CheckCircle2 className="w-2.5 h-2.5 text-accent" />
-            ) : (
-              <Circle className="w-2.5 h-2.5 text-muted-foreground/40" />
-            )}
-            <span className={t.done ? "line-through text-muted-foreground" : "text-foreground"}>
-              {t.text}
-            </span>
-          </div>
-        ))}
-      </div>
-    </FloatingCard>
 
     {/* Hero content */}
     <div className="relative z-10 max-w-3xl mx-auto px-6 text-center py-20">
