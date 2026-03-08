@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import { motion } from "framer-motion";
 import { Brain, BookOpen, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -198,7 +199,7 @@ const AIToolsPage = () => {
           </div>
           <div className="prose prose-sm max-w-none text-foreground dark:prose-invert">
             {result ? (
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">{result}</div>
+              <div className="text-sm leading-relaxed"><ReactMarkdown>{result}</ReactMarkdown></div>
             ) : (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
