@@ -1,47 +1,27 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState as useStateReact } from "react";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, Circle, Clock, TrendingUp, BookOpen, Target } from "lucide-react";
 
 const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
+  const [display, setDisplay] = useStateReact(0);
 
-  return (
-    <motion.span
-      ref={ref}
-      initial={{ opacity: 0 }}
-      animate={inView ? { opacity: 1 } : {}}
-    >
-      {inView ? (
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <CountUp target={target} />{suffix}
-        </motion.span>
-      ) : (
-        "0" + suffix
-      )}
-    </motion.span>
-  );
-};
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const duration = 1500;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplay(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, target]);
 
-const CountUp = ({ target }: { target: number }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-
-  return (
-    <motion.span
-      ref={ref}
-      initial={0}
-      animate={inView ? target : 0}
-      transition={{ duration: 1.5, ease: "easeOut" }}
-      onUpdate={(v) => {
-        if (ref.current) ref.current.textContent = Math.round(v as number).toString();
-      }}
-    />
-  );
+  return <span ref={ref}>{display}{suffix}</span>;
 };
 
 const AnimatedBar = ({ width, delay = 0 }: { width: string; delay?: number }) => {
