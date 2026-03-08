@@ -33,8 +33,8 @@ const Navbar = () => {
               {link}
             </span>
           ))}
-          <Button variant="nav" size="sm" className="rounded-full px-5">
-            Get Started
+          <Button variant="nav" size="sm" className="rounded-full px-5" asChild>
+            <Link to="/auth">Get Started</Link>
           </Button>
         </div>
 
