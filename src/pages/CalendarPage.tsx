@@ -1,30 +1,16 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Flag } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTasks } from "@/hooks/useTasks";
+import { Loader2 } from "lucide-react";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-interface CalTask {
-  title: string;
-  subject: string;
-  priority: "low" | "medium" | "high";
-}
-
-const tasksByDate: Record<string, CalTask[]> = {
-  "2026-03-09": [{ title: "Complete Calculus Assignment", subject: "Math", priority: "high" }],
-  "2026-03-10": [{ title: "Write Essay on AI Ethics", subject: "CS", priority: "high" }, { title: "Physics Lab Report", subject: "Physics", priority: "medium" }],
-  "2026-03-11": [{ title: "Prepare Biology Lab Notes", subject: "Biology", priority: "medium" }],
-  "2026-03-12": [{ title: "Solve Practice Problems Set 3", subject: "Math", priority: "low" }],
-  "2026-03-15": [{ title: "CS Quiz Preparation", subject: "CS", priority: "high" }],
-  "2026-03-18": [{ title: "English Essay Draft", subject: "English", priority: "medium" }],
-  "2026-03-22": [{ title: "Math Midterm", subject: "Math", priority: "high" }],
-};
-
 const priorityDot: Record<string, string> = { low: "bg-emerald-500", medium: "bg-amber-500", high: "bg-rose-500" };
 
 const CalendarPage = () => {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 8));
+  const { tasks, isLoading } = useTasks();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
@@ -39,7 +25,20 @@ const CalendarPage = () => {
   const today = new Date();
   const isToday = (d: number) => today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
 
+  const tasksByDate = useMemo(() => {
+    const map: Record<string, typeof tasks> = {};
+    tasks.forEach((t) => {
+      if (t.deadline) {
+        if (!map[t.deadline]) map[t.deadline] = [];
+        map[t.deadline].push(t);
+      }
+    });
+    return map;
+  }, [tasks]);
+
   const selectedTasks = selectedDate ? tasksByDate[selectedDate] || [] : [];
+
+  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
 
   return (
     <div className="p-6 sm:p-8 max-w-7xl mx-auto space-y-6">
@@ -57,11 +56,8 @@ const CalendarPage = () => {
               <button onClick={next} className="p-2 rounded-xl hover:bg-secondary/50 text-muted-foreground hover:text-foreground transition-colors"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
-
           <div className="grid grid-cols-7 gap-1">
-            {DAYS.map((d) => (
-              <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-2">{d}</div>
-            ))}
+            {DAYS.map((d) => <div key={d} className="text-center text-[10px] font-medium text-muted-foreground py-2">{d}</div>)}
             {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
             {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
@@ -69,21 +65,11 @@ const CalendarPage = () => {
               const hasTasks = !!tasksByDate[key];
               const isSelected = selectedDate === key;
               return (
-                <button
-                  key={day}
-                  onClick={() => setSelectedDate(isSelected ? null : key)}
-                  className={`relative aspect-square rounded-xl text-sm flex flex-col items-center justify-center transition-all duration-200 ${
-                    isSelected ? "bg-primary text-primary-foreground shadow-glow" :
-                    isToday(day) ? "bg-primary/10 text-primary font-bold" :
-                    "text-foreground hover:bg-secondary/50"
-                  }`}
-                >
+                <button key={day} onClick={() => setSelectedDate(isSelected ? null : key)} className={`relative aspect-square rounded-xl text-sm flex flex-col items-center justify-center transition-all duration-200 ${isSelected ? "bg-primary text-primary-foreground shadow-glow" : isToday(day) ? "bg-primary/10 text-primary font-bold" : "text-foreground hover:bg-secondary/50"}`}>
                   {day}
                   {hasTasks && (
                     <div className="flex gap-0.5 mt-0.5">
-                      {tasksByDate[key].slice(0, 3).map((t, ti) => (
-                        <span key={ti} className={`w-1 h-1 rounded-full ${isSelected ? "bg-primary-foreground/70" : priorityDot[t.priority]}`} />
-                      ))}
+                      {tasksByDate[key].slice(0, 3).map((t, ti) => <span key={ti} className={`w-1 h-1 rounded-full ${isSelected ? "bg-primary-foreground/70" : priorityDot[t.priority] || priorityDot.medium}`} />)}
                     </div>
                   )}
                 </button>
@@ -92,7 +78,6 @@ const CalendarPage = () => {
           </div>
         </motion.div>
 
-        {/* Sidebar */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-6">
           <div className="flex items-center gap-2 mb-4">
             <CalendarIcon className="w-4 h-4 text-primary" />
@@ -101,22 +86,20 @@ const CalendarPage = () => {
           <AnimatePresence mode="wait">
             {selectedDate ? (
               <motion.div key={selectedDate} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-2">
-                {selectedTasks.length > 0 ? selectedTasks.map((t, i) => (
-                  <div key={i} className="p-3 rounded-xl bg-secondary/20 hover:bg-secondary/40 transition-colors">
+                {selectedTasks.length > 0 ? selectedTasks.map((t) => (
+                  <div key={t.id} className="p-3 rounded-xl bg-secondary/20 hover:bg-secondary/40 transition-colors">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${priorityDot[t.priority]}`} />
+                      <span className={`w-2 h-2 rounded-full ${priorityDot[t.priority] || priorityDot.medium}`} />
                       <span className="text-sm font-medium text-foreground">{t.title}</span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground ml-4">{t.subject}</span>
+                    {t.subject_name && <span className="text-[10px] text-muted-foreground ml-4">{t.subject_name}</span>}
                   </div>
                 )) : (
                   <p className="text-sm text-muted-foreground text-center py-8">No tasks on this date</p>
                 )}
               </motion.div>
             ) : (
-              <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground text-center py-8">
-                Click a date to view tasks
-              </motion.p>
+              <motion.p key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground text-center py-8">Click a date to view tasks</motion.p>
             )}
           </AnimatePresence>
         </motion.div>
