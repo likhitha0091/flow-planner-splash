@@ -1,14 +1,13 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock, FileUp, X, Save } from "lucide-react";
+import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
-
-const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-study-tools`;
+import { useAITools } from "@/contexts/AIToolsContext";
 
 type Tab = "study-plan" | "summarize" | "productivity";
 
@@ -18,127 +17,15 @@ const tabs: { key: Tab; label: string; icon: React.ElementType; desc: string }[]
   { key: "productivity", label: "Advisor", icon: TrendingUp, desc: "Get personalized productivity tips" },
 ];
 
-async function streamAI(
-  body: Record<string, unknown> | FormData,
-  onDelta: (t: string) => void,
-  onDone: () => void,
-  signal?: AbortSignal,
-) {
-  const isFormData = body instanceof FormData;
-  const resp = await fetch(AI_URL, {
-    method: "POST",
-    headers: {
-      ...(isFormData ? {} : { "Content-Type": "application/json" }),
-      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-    },
-    body: isFormData ? body : JSON.stringify(body),
-    signal,
-  });
-
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({ error: "Request failed" }));
-    throw new Error(err.error || "Request failed");
-  }
-
-  if (!resp.body) throw new Error("No response body");
-
-  const reader = resp.body.getReader();
-  const decoder = new TextDecoder();
-  let buf = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buf += decoder.decode(value, { stream: true });
-
-    let idx: number;
-    while ((idx = buf.indexOf("\n")) !== -1) {
-      let line = buf.slice(0, idx);
-      buf = buf.slice(idx + 1);
-      if (line.endsWith("\r")) line = line.slice(0, -1);
-      if (!line.startsWith("data: ")) continue;
-      const json = line.slice(6).trim();
-      if (json === "[DONE]") { onDone(); return; }
-      try {
-        const parsed = JSON.parse(json);
-        const c = parsed.choices?.[0]?.delta?.content;
-        if (c) onDelta(c);
-      } catch {
-        buf = line + "\n" + buf;
-        break;
-      }
-    }
-  }
-  onDone();
-}
-
 const AIToolsPage = () => {
   const { toast } = useToast();
   const { addNote } = useNotes();
-  const [active, setActive] = useState<Tab>("study-plan");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState("");
-  const abortRef = useRef<AbortController | null>(null);
-
-  // Study plan state
-  const [subject, setSubject] = useState("");
-  const [examDate, setExamDate] = useState("");
-  const [hoursPerDay, setHoursPerDay] = useState("3");
-
-  // Summarizer state
-  const [notes, setNotes] = useState("");
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const {
+    active, setActive, loading, result,
+    subject, setSubject, examDate, setExamDate, hoursPerDay, setHoursPerDay,
+    notes, setNotes, pdfFile, setPdfFile, handleGenerate, pdfFileName,
+  } = useAITools();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleGenerate = async () => {
-    setResult("");
-    setLoading(true);
-    abortRef.current = new AbortController();
-
-    let body: Record<string, unknown> = { type: active };
-
-    if (active === "study-plan") {
-      if (!subject || !examDate) {
-        toast({ title: "Missing fields", description: "Please fill in subject and exam date.", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-      body = { ...body, subject, examDate, hoursPerDay: Number(hoursPerDay) };
-    } else if (active === "summarize") {
-      if (!notes.trim() && !pdfFile) {
-        toast({ title: "Missing input", description: "Please paste notes or upload a PDF.", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
-      if (pdfFile) {
-        const formData = new FormData();
-        formData.append("type", "summarize");
-        formData.append("file", pdfFile);
-        formData.append("params", JSON.stringify({}));
-        body = formData as any;
-      } else {
-        body = { ...body, notes };
-      }
-    }
-
-    try {
-      let full = "";
-      await streamAI(
-        body,
-        (delta) => {
-          full += delta;
-          setResult(full);
-        },
-        () => setLoading(false),
-        abortRef.current.signal,
-      );
-    } catch (e: any) {
-      if (e.name !== "AbortError") {
-        toast({ title: "Error", description: e.message, variant: "destructive" });
-      }
-      setLoading(false);
-    }
-  };
 
   const renderInputs = () => {
     if (active === "study-plan") {
@@ -164,7 +51,6 @@ const AIToolsPage = () => {
     if (active === "summarize") {
       return (
         <div className="space-y-4">
-          {/* PDF upload */}
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Upload PDF</Label>
             <input
@@ -240,12 +126,11 @@ const AIToolsPage = () => {
         <p className="text-sm text-muted-foreground mt-1">Powered by AI to supercharge your study sessions</p>
       </motion.div>
 
-      {/* Tabs */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex gap-3 flex-wrap">
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => { setActive(tab.key); setResult(""); }}
+            onClick={() => setActive(tab.key)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
               active === tab.key
                 ? "bg-primary text-primary-foreground shadow-glow"
@@ -258,7 +143,6 @@ const AIToolsPage = () => {
         ))}
       </motion.div>
 
-      {/* Input card */}
       <motion.div
         key={active}
         initial={{ opacity: 0, y: 20 }}
@@ -286,7 +170,6 @@ const AIToolsPage = () => {
         </div>
       </motion.div>
 
-      {/* Result card */}
       {(result || loading) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -306,7 +189,7 @@ const AIToolsPage = () => {
                   const title = active === "study-plan"
                     ? `Study Plan: ${subject}`
                     : active === "summarize"
-                    ? `Summary: ${pdfFile?.name || "Notes"}`
+                    ? `Summary: ${pdfFileName || "Notes"}`
                     : "Productivity Advice";
                   try {
                     await addNote.mutateAsync({ title, content: result });
