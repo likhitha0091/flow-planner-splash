@@ -97,6 +97,14 @@ serve(async (req) => {
       throw new Error("Invalid type");
     }
 
+    // Build messages - use multimodal content if PDF provided
+    const userContent: any = pdfBase64
+      ? [
+          { type: "text", text: userPrompt },
+          { type: "image_url", image_url: { url: `data:${pdfMimeType};base64,${pdfBase64}` } },
+        ]
+      : userPrompt;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -107,7 +115,7 @@ serve(async (req) => {
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: userContent },
         ],
         stream: true,
       }),
