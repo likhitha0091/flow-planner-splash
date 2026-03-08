@@ -4,11 +4,11 @@ import { CheckCircle2, Circle, Clock, TrendingUp, BookOpen, Target } from "lucid
 
 const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
+  const inView = useInView(ref, { margin: "-50px" });
   const [display, setDisplay] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView) { setDisplay(0); return; }
     const duration = 1500;
     const startTime = performance.now();
     const step = (now: number) => {
@@ -25,7 +25,7 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: str
 
 const AnimatedBar = ({ width, delay = 0 }: { width: string; delay?: number }) => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-30px" });
+  const inView = useInView(ref, { margin: "-30px" });
 
   return (
     <div ref={ref} className="h-2 rounded-full bg-secondary overflow-hidden">
@@ -65,7 +65,7 @@ const barData = [
 
 const ProductPreview = () => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { margin: "-80px" });
 
   return (
     <section className="py-24 px-6">
@@ -73,7 +73,7 @@ const ProductPreview = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false, margin: "-50px" }}
           className="text-center mb-16"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-4">
