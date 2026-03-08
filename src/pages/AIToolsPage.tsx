@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock, FileUp, X } from "lucide-react";
+import { Brain, BookOpen, TrendingUp, Sparkles, Send, Loader2, Calendar, Clock, FileUp, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useNotes } from "@/hooks/useNotes";
 
 const AI_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-study-tools`;
 
@@ -73,6 +74,7 @@ async function streamAI(
 
 const AIToolsPage = () => {
   const { toast } = useToast();
+  const { addNote } = useNotes();
   const [active, setActive] = useState<Tab>("study-plan");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
@@ -295,6 +297,29 @@ const AIToolsPage = () => {
             <Brain className="w-4 h-4 text-primary" />
             <h2 className="font-display font-bold text-foreground">AI Response</h2>
             {loading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground ml-auto" />}
+            {result && !loading && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="ml-auto rounded-lg gap-1.5 text-xs"
+                onClick={async () => {
+                  const title = active === "study-plan"
+                    ? `Study Plan: ${subject}`
+                    : active === "summarize"
+                    ? `Summary: ${pdfFile?.name || "Notes"}`
+                    : "Productivity Advice";
+                  try {
+                    await addNote.mutateAsync({ title, content: result });
+                    toast({ title: "Saved!", description: "AI response saved to your Notes." });
+                  } catch {
+                    toast({ title: "Error", description: "Failed to save note.", variant: "destructive" });
+                  }
+                }}
+              >
+                <Save className="w-3.5 h-3.5" />
+                Save as Note
+              </Button>
+            )}
           </div>
           <div className="prose prose-sm max-w-none text-foreground dark:prose-invert">
             {result ? (
