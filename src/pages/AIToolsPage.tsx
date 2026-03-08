@@ -74,6 +74,7 @@ async function streamAI(
 
 const AIToolsPage = () => {
   const { toast } = useToast();
+  const { addNote } = useNotes();
   const [active, setActive] = useState<Tab>("study-plan");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState("");
