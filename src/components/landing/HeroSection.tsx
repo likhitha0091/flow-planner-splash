@@ -97,20 +97,6 @@ const HeroSection = () => (
       </div>
     </FloatingCard>
 
-    {/* Mini chart card */}
-    <FloatingCard className="bottom-[42%] left-[12%]" delay={0.6} dy={10} dx={-3}>
-      <div className="flex items-end gap-[3px] h-8">
-        {[40, 65, 30, 80, 55, 90, 45].map((h, i) => (
-          <motion.div
-            key={i}
-            className="w-2 rounded-t-sm gradient-primary"
-            initial={{ height: 0 }}
-            animate={{ height: `${h}%` }}
-            transition={{ delay: 1.6 + i * 0.08, duration: 0.6, ease: "easeOut" }}
-          />
-        ))}
-      </div>
-    </FloatingCard>
 
     {/* Task list card */}
     <FloatingCard className="bottom-[44%] right-[10%]" delay={0.35} dy={-8} dx={5}>
