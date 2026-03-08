@@ -119,8 +119,9 @@ const SettingsPage = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <Button variant="hero" className="rounded-xl gap-2" onClick={handleSave}>
-          <Save className="w-4 h-4" /> Save Changes
+        <Button variant="hero" className="rounded-xl gap-2" onClick={handleSave} disabled={saving}>
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {saving ? "Saving..." : "Save Changes"}
         </Button>
       </motion.div>
     </div>
