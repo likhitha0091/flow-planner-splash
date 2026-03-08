@@ -18,6 +18,12 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/home", { replace: true });
+    }
+  }, [user, authLoading, navigate]);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
