@@ -1,15 +1,14 @@
-import { useRef, useEffect, useState as useStateReact } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, Circle, Clock, TrendingUp, BookOpen, Target } from "lucide-react";
 
 const AnimatedCounter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-50px" });
-  const [display, setDisplay] = useStateReact(0);
+  const [display, setDisplay] = useState(0);
 
   useEffect(() => {
     if (!inView) return;
-    let start = 0;
     const duration = 1500;
     const startTime = performance.now();
     const step = (now: number) => {
@@ -93,7 +92,7 @@ const ProductPreview = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="gradient-card rounded-2xl border border-border/50 shadow-card overflow-hidden"
+          className="rounded-2xl border border-border/50 shadow-card overflow-hidden bg-card/70 backdrop-blur-md"
         >
           <div className="p-6 sm:p-8">
             {/* Header */}
@@ -107,7 +106,7 @@ const ProductPreview = () => {
               </div>
             </div>
 
-            {/* Stats row */}
+            {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
               {stats.map((stat, i) => (
                 <motion.div
@@ -154,7 +153,6 @@ const ProductPreview = () => {
                   ))}
                 </div>
 
-                {/* Progress */}
                 <div className="mt-4 space-y-3">
                   <h4 className="font-display font-semibold text-sm text-foreground">Subject Progress</h4>
                   {[
@@ -173,7 +171,7 @@ const ProductPreview = () => {
                 </div>
               </div>
 
-              {/* Chart */}
+              {/* Chart + schedule */}
               <div>
                 <h4 className="font-display font-semibold text-sm text-foreground mb-3">Weekly Study Hours</h4>
                 <div className="flex items-end gap-2 h-40 px-2">
@@ -190,7 +188,6 @@ const ProductPreview = () => {
                   ))}
                 </div>
 
-                {/* Mini schedule */}
                 <div className="mt-6">
                   <h4 className="font-display font-semibold text-sm text-foreground mb-3">Today's Schedule</h4>
                   <div className="space-y-2">
