@@ -11,6 +11,7 @@ interface TimerContextType {
   running: boolean;
   setRunning: (r: boolean) => void;
   reset: () => void;
+  stop: () => void;
   progress: number;
   total: number;
 }
@@ -34,7 +35,13 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
   const progress = ((total - timeLeft) / total) * 100;
 
   const completeSession = useCallback(() => {
-    addSession.mutate({ type: mode, duration_minutes: mode === "study" ? 25 : 5 });
+    const targetMin = mode === "study" ? 25 : 5;
+    addSession.mutate({
+      type: mode,
+      duration_minutes: targetMin,
+      target_duration_minutes: targetMin,
+      status: "completed",
+    });
     const nextMode = mode === "study" ? "break" : "study";
     setModeState(nextMode);
     setTimeLeft(nextMode === "study" ? STUDY_DURATION : BREAK_DURATION);
@@ -59,13 +66,29 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const stop = () => {
+    if (timeLeft < total) {
+      const elapsedSeconds = total - timeLeft;
+      const elapsedMinutes = Math.max(1, Math.round(elapsedSeconds / 60));
+      const targetMin = mode === "study" ? 25 : 5;
+      addSession.mutate({
+        type: mode,
+        duration_minutes: elapsedMinutes,
+        target_duration_minutes: targetMin,
+        status: "partial",
+      });
+    }
+    setRunning(false);
+    setTimeLeft(mode === "study" ? STUDY_DURATION : BREAK_DURATION);
+  };
+
   const reset = () => {
     setRunning(false);
     setTimeLeft(mode === "study" ? STUDY_DURATION : BREAK_DURATION);
   };
 
   return (
-    <TimerContext.Provider value={{ mode, setMode, timeLeft, running, setRunning, reset, progress, total }}>
+    <TimerContext.Provider value={{ mode, setMode, timeLeft, running, setRunning, reset, stop, progress, total }}>
       {children}
     </TimerContext.Provider>
   );
