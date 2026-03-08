@@ -1,20 +1,22 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Bell, Palette, Save, Sun, Moon } from "lucide-react";
+import { User, Bell, Palette, Save, Sun, Moon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const SettingsPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [name, setName] = useState(user?.user_metadata?.full_name || "");
+  const [name, setName] = useState(user?.user_metadata?.full_name || user?.user_metadata?.name || "");
   const [email] = useState(user?.email || "");
   const [notifications, setNotifications] = useState({ email: true, deadlines: true, weekly: false });
   const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -26,8 +28,28 @@ const SettingsPage = () => {
     }
   }, [darkMode]);
 
-  const handleSave = () => {
-    toast({ title: "Settings saved", description: "Your preferences have been updated." });
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Update auth user metadata
+      const { error: authError } = await supabase.auth.updateUser({
+        data: { full_name: name },
+      });
+      if (authError) throw authError;
+
+      // Update profiles table
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ full_name: name, updated_at: new Date().toISOString() })
+        .eq("user_id", user!.id);
+      if (profileError) throw profileError;
+
+      toast({ title: "Settings saved", description: "Your profile has been updated." });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message || "Failed to save.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
