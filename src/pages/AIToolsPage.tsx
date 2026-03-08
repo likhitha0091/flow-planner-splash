@@ -106,13 +106,6 @@ const AIToolsPage = () => {
         </div>
       );
     }
-    if (active === "productivity") {
-      return (
-        <p className="text-sm text-muted-foreground py-4">
-          Click generate to analyze your tasks and study sessions and get personalized improvement tips.
-        </p>
-      );
-    }
   };
 
   return (
