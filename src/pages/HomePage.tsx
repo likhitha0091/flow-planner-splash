@@ -159,8 +159,18 @@ const HomePage = () => {
           </div>
           <div className="flex items-end gap-2 h-32">
             {weeklyHours.map((h, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
-                <motion.div className="w-full rounded-t-md gradient-primary min-h-[4px]" initial={{ height: 0 }} animate={{ height: `${(h.hours / maxHours) * 100}%` }} transition={{ delay: 0.7 + i * 0.06, duration: 0.7, ease: "easeOut" }} />
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end group relative">
+                {/* Tooltip */}
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded-md bg-foreground text-background text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                  {h.hours > 0 ? `${h.hours}h studied` : "No study"}
+                </div>
+                <motion.div
+                  className="w-full rounded-t-md gradient-primary min-h-[4px] cursor-pointer"
+                  initial={{ height: 0 }}
+                  animate={{ height: `${(h.hours / maxHours) * 100}%` }}
+                  transition={{ delay: 0.7 + i * 0.06, duration: 0.7, ease: "easeOut" }}
+                  whileHover={{ opacity: 0.8 }}
+                />
                 <span className="text-[9px] text-muted-foreground">{h.day}</span>
               </div>
             ))}
