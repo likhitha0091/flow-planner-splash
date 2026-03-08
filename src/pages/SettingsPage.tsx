@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Settings, User, Lock, Bell, Palette, Save } from "lucide-react";
+import { User, Bell, Palette, Save, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,17 @@ const SettingsPage = () => {
   const [name, setName] = useState(user?.user_metadata?.full_name || "");
   const [email] = useState(user?.email || "");
   const [notifications, setNotifications] = useState({ email: true, deadlines: true, weekly: false });
+  const [darkMode, setDarkMode] = useState(() => document.documentElement.classList.contains("dark"));
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
 
   const handleSave = () => {
     toast({ title: "Settings saved", description: "Your preferences have been updated." });
@@ -40,30 +51,6 @@ const SettingsPage = () => {
           <div className="space-y-1.5">
             <Label className="text-xs text-muted-foreground">Email</Label>
             <Input value={email} disabled className="bg-secondary/20 border-border/50 text-muted-foreground" />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Password */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card/70 backdrop-blur-sm rounded-2xl border border-border/50 shadow-card p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Lock className="w-4 h-4 text-primary" />
-          <h2 className="font-display font-bold text-foreground">Password</h2>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Current Password</Label>
-            <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">New Password</Label>
-              <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Confirm New Password</Label>
-              <Input type="password" placeholder="••••••••" className="bg-secondary/30 border-border/50" />
-            </div>
           </div>
         </div>
       </motion.div>
@@ -102,7 +89,10 @@ const SettingsPage = () => {
             <p className="text-sm font-medium text-foreground">Dark Mode</p>
             <p className="text-[10px] text-muted-foreground">Toggle dark/light theme</p>
           </div>
-          <Switch />
+          <div className="flex items-center gap-2">
+            {darkMode ? <Moon className="w-4 h-4 text-muted-foreground" /> : <Sun className="w-4 h-4 text-muted-foreground" />}
+            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+          </div>
         </div>
       </motion.div>
 
