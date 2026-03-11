@@ -30,11 +30,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    useEffect(() => {
+  // Get current session
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setSession(session);
+    setUser(session?.user ?? null);
+    setLoading(false);
+  });
+
+  // Listen for login/logout changes
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    }
+  );
+
+  return () => subscription.unsubscribe();
+}, []);
 
     return () => subscription.unsubscribe();
   }, []);
