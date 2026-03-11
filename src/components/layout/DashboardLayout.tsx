@@ -1,12 +1,21 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Navigate, useNavigate, useLocation } from "react-router-dom";
 import {
-  Home, BookOpen, ClipboardList, Calendar, FileText,
-  Timer, BarChart3, Brain, Settings, LogOut, ChevronLeft, ChevronRight,
+  Home,
+  BookOpen,
+  ClipboardList,
+  Calendar,
+  FileText,
+  Timer,
+  BarChart3,
+  Brain,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const navItems = [
   { label: "Home", icon: Home, path: "/home" },
@@ -26,10 +35,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) navigate("/auth");
-  }, [user, loading, navigate]);
-
+  // WAIT until auth loads
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -42,7 +48,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  if (!user) return null;
+  // If not logged in redirect to login
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleLogout = async () => {
     await signOut();
@@ -63,13 +72,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             <BookOpen className="w-4 h-4 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="font-display font-bold text-sm text-foreground whitespace-nowrap"
-            >
+            <span className="font-display font-bold text-sm text-foreground whitespace-nowrap">
               StudyFlow AI
-            </motion.span>
+            </span>
           )}
         </div>
 
@@ -87,8 +92,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                     : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                 }`}
               >
-                <item.icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-primary" : "group-hover:text-foreground"}`} />
-                {!collapsed && <span className="whitespace-nowrap">{item.label}</span>}
+                <item.icon
+                  className={`w-4.5 h-4.5 shrink-0 ${
+                    isActive ? "text-primary" : "group-hover:text-foreground"
+                  }`}
+                />
+                {!collapsed && <span>{item.label}</span>}
               </button>
             );
           })}
@@ -110,7 +119,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           onClick={() => setCollapsed(!collapsed)}
           className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-card border border-border/50 shadow-soft flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
         >
-          {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+          {collapsed ? (
+            <ChevronRight className="w-3 h-3" />
+          ) : (
+            <ChevronLeft className="w-3 h-3" />
+          )}
         </button>
       </motion.aside>
 
